@@ -49,7 +49,15 @@ export class TaskService {
             throw new AppError('Task not found', 404);
         }
 
-        if (input.assignedToId === userId) {
+        // Basic permission check
+        const isCreator = task.creatorId?._id?.toString() === userId || task.creatorId?.toString() === userId;
+        const isAssigned = task.assignedToId?._id?.toString() === userId || task.assignedToId?.toString() === userId;
+
+        if (!isCreator && !isAssigned) {
+            throw new AppError('You do not have permission to update this task', 403);
+        }
+
+        if (input.assignedToId === userId && !isCreator) {
             throw new AppError('You cannot assign a task to yourself', 400);
         }
 
@@ -59,13 +67,16 @@ export class TaskService {
         }
 
         const activity = {
-            type: 'updated',
             userId: userId as any,
+            type: 'updated',
             details: 'Task updated',
             createdAt: new Date()
         };
 
-        if (input.assignedToId && input.assignedToId !== task.assignedToId?.toString()) {
+        if (input.status && input.status !== task.status) {
+            activity.type = 'status_change';
+            activity.details = `Moved task to ${input.status}`;
+        } else if (input.assignedToId && input.assignedToId !== task.assignedToId?.toString()) {
             activity.type = 'assigned';
             activity.details = `Task assigned to ${input.assignedToId}`;
         }
@@ -75,7 +86,6 @@ export class TaskService {
             $push: { activity }
         } as any);
 
-        // Real-time update
         getIO().emit('task:updated', updatedTask);
 
         if (input.assignedToId && input.assignedToId !== task.assignedToId?.toString()) {
