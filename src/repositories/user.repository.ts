@@ -12,4 +12,15 @@ export class UserRepository {
     async findById(id: string): Promise<IUser | null> {
         return User.findById(id);
     }
+
+    async findByVerificationToken(token: string): Promise<IUser | null> {
+        return User.findOne({ verificationToken: token });
+    }
+
+    async findByResetToken(token: string): Promise<IUser | null> {
+        return User.findOne({
+            resetPasswordToken: token,
+            resetPasswordExpires: { $gt: new Date() },
+        });
+    }
 }

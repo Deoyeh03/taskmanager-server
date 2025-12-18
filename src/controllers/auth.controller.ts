@@ -64,3 +64,33 @@ export const getMe = catchAsync(async (req: Request, res: Response) => {
         data: { user },
     });
 });
+
+export const verifyEmail = catchAsync(async (req: Request, res: Response) => {
+    const { token } = req.body;
+    await authService.verifyEmail(token);
+
+    res.status(200).json({
+        status: 'success',
+        message: 'Email verified successfully',
+    });
+});
+
+export const forgotPassword = catchAsync(async (req: Request, res: Response) => {
+    const { email } = req.body;
+    await authService.forgotPassword(email);
+
+    res.status(200).json({
+        status: 'success',
+        message: 'If an account with that email exists, a password reset link has been sent.',
+    });
+});
+
+export const resetPassword = catchAsync(async (req: Request, res: Response) => {
+    const { token, password } = req.body;
+    await authService.resetPassword(token, password);
+
+    res.status(200).json({
+        status: 'success',
+        message: 'Password reset successfully. You can now log in with your new password.',
+    });
+});
