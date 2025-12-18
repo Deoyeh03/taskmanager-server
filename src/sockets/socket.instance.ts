@@ -6,7 +6,10 @@ let io: Server;
 export const initSocket = (httpServer: HttpServer) => {
     io = new Server(httpServer, {
         cors: {
-            origin: process.env.CLIENT_URL || 'http://localhost:3000',
+            origin: [
+                process.env.CLIENT_URL || 'http://localhost:3000',
+                'https://taskmanager-client-lilac.vercel.app'
+            ],
             credentials: true,
         },
     });
