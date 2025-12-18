@@ -5,6 +5,7 @@ export interface IUser extends Document {
     email: string;
     passwordHash: string;
     avatar?: string;
+    avatarType?: 'upload' | 'library';
     bio?: string;
     isVerified: boolean;
     verificationToken?: string;
@@ -19,6 +20,7 @@ const UserSchema: Schema = new Schema({
     email: { type: String, required: true, unique: true, trim: true, lowercase: true },
     passwordHash: { type: String, required: true },
     avatar: { type: String },
+    avatarType: { type: String, enum: ['upload', 'library'] },
     bio: { type: String, maxlength: 200 },
     isVerified: { type: Boolean, default: false },
     verificationToken: { type: String },
