@@ -17,7 +17,7 @@ export const searchUsers = catchAsync(async (req: Request, res: Response) => {
             { username: { $regex: query, $options: 'i' } },
             { email: { $regex: query, $options: 'i' } }
         ]
-    }).select('username email').limit(10);
+    }).select('_id username email').limit(10);
 
     res.status(200).json({
         status: 'success',
