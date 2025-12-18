@@ -17,8 +17,12 @@ export const create = catchAsync(async (req: Request, res: Response) => {
 });
 
 export const findAll = catchAsync(async (req: Request, res: Response) => {
-    // Basic formatting for query params if needed, for now just custom logic
-    const tasks = await taskService.findAll({});
+    // Support filtering by assignedToId
+    const filter: any = {};
+    if (req.query.assignedToId) {
+        filter.assignedToId = req.query.assignedToId;
+    }
+    const tasks = await taskService.findAll(filter);
     res.status(200).json({
         status: 'success',
         data: { tasks },

@@ -9,10 +9,12 @@ export const register = catchAsync(async (req: Request, res: Response, next: Nex
     const input = registerSchema.parse(req.body);
     const { user, token } = await authService.register(input);
 
+    const isProduction = process.env.NODE_ENV === 'production';
+
     res.cookie('token', token, {
         httpOnly: true,
-        secure: true, // Required for sameSite: 'none'
-        sameSite: 'none',
+        secure: isProduction, // Only require HTTPS in production
+        sameSite: isProduction ? 'none' : 'lax', // 'lax' for development, 'none' for production
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
@@ -32,10 +34,12 @@ export const login = catchAsync(async (req: Request, res: Response, next: NextFu
     const input = loginSchema.parse(req.body);
     const { user, token } = await authService.login(input);
 
+    const isProduction = process.env.NODE_ENV === 'production';
+
     res.cookie('token', token, {
         httpOnly: true,
-        secure: true, // Required for sameSite: 'none'
-        sameSite: 'none',
+        secure: isProduction, // Only require HTTPS in production
+        sameSite: isProduction ? 'none' : 'lax', // 'lax' for development, 'none' for production
         maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
