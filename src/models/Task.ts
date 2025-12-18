@@ -68,8 +68,12 @@ const TaskSchema: Schema = new Schema({
         details: { type: String },
         createdAt: { type: Date, default: Date.now },
     }],
+    expiresAt: { type: Date }, // For dummy data expiry
 }, {
     timestamps: true
 });
+
+// TTL Index
+TaskSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
 export default mongoose.model<ITask>('Task', TaskSchema);

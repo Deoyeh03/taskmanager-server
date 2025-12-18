@@ -24,8 +24,12 @@ const UserSchema: Schema = new Schema({
     verificationToken: { type: String },
     resetPasswordToken: { type: String },
     resetPasswordExpires: { type: Date },
+    expiresAt: { type: Date }, // For dummy data expiry
 }, {
     timestamps: true
 });
+
+// TTL Index: Documents will be deleted at the time specified in expiresAt
+UserSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
 export default mongoose.model<IUser>('User', UserSchema);

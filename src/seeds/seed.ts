@@ -19,6 +19,9 @@ const seedData = async () => {
 
         const hashedPassword = await bcrypt.hash('password123', 10);
 
+        const expiryDate = new Date();
+        expiryDate.setDate(expiryDate.getDate() + 5);
+
         // Create Users
         const users = await User.create([
             {
@@ -26,27 +29,50 @@ const seedData = async () => {
                 email: 'alice@example.com',
                 passwordHash: hashedPassword,
                 bio: 'Project Manager who loves organization.',
-                avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alice'
+                avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alice',
+                isVerified: true,
+                expiresAt: expiryDate
             },
             {
                 username: 'bob_dev',
                 email: 'bob@example.com',
                 passwordHash: hashedPassword,
                 bio: 'Fullstack developer focused on performance.',
-                avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Bob'
+                avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Bob',
+                isVerified: true,
+                expiresAt: expiryDate
             },
             {
                 username: 'charlie_designer',
                 email: 'charlie@example.com',
                 passwordHash: hashedPassword,
                 bio: 'UI/UX Designer with a passion for glassmorphism.',
-                avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Charlie'
+                isVerified: true,
+                expiresAt: expiryDate
+            },
+            {
+                username: 'dev_test',
+                email: 'test@example.com',
+                passwordHash: hashedPassword,
+                bio: 'Testing user account.',
+                avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Test',
+                isVerified: true,
+                expiresAt: expiryDate
+            },
+            {
+                username: 'lead_eng',
+                email: 'lead@example.com',
+                passwordHash: hashedPassword,
+                bio: 'Lead Engineer.',
+                avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Lead',
+                isVerified: true,
+                expiresAt: expiryDate
             }
         ]);
 
         console.log('Users created.');
 
-        const [alice, bob, charlie] = users;
+        const [alice, bob, charlie, test, lead] = users;
 
         // Create Tasks
         const tasks = await Task.create([
@@ -67,7 +93,8 @@ const seedData = async () => {
                 activity: [
                     { type: 'created', userId: alice._id, details: 'Task created', createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000) },
                     { type: 'assigned', userId: alice._id, details: `Task assigned to ${bob.username}`, createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000) }
-                ]
+                ],
+                expiresAt: expiryDate
             },
             {
                 title: 'Design Premium Dashboard UI',
@@ -81,7 +108,8 @@ const seedData = async () => {
                 dueDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
                 activity: [
                     { type: 'created', userId: alice._id, details: 'Task created', createdAt: new Date() }
-                ]
+                ],
+                expiresAt: expiryDate
             },
             {
                 title: 'Optimize Database Queries',
@@ -95,7 +123,38 @@ const seedData = async () => {
                 dueDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
                 activity: [
                     { type: 'created', userId: bob._id, details: 'Task created', createdAt: new Date() }
-                ]
+                ],
+                expiresAt: expiryDate
+            },
+            {
+                title: 'Test All Auth Flows',
+                description: 'Manually test register, login, reset password.',
+                status: 'To Do',
+                priority: 'High',
+                category: 'QA',
+                tags: ['Testing', 'Auth'],
+                creatorId: lead._id,
+                assignedToId: test._id,
+                dueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+                activity: [
+                    { type: 'created', userId: lead._id, details: 'Task created', createdAt: new Date() }
+                ],
+                expiresAt: expiryDate
+            },
+            {
+                title: 'Deploy to Production',
+                description: 'Final deployment to Render and Vercel.',
+                status: 'To Do',
+                priority: 'Urgent',
+                category: 'DevOps',
+                tags: ['Deployment', 'Prod'],
+                creatorId: lead._id,
+                assignedToId: bob._id,
+                dueDate: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
+                activity: [
+                    { type: 'created', userId: lead._id, details: 'Task created', createdAt: new Date() }
+                ],
+                expiresAt: expiryDate
             }
         ]);
 
