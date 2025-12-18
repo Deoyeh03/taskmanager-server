@@ -11,8 +11,8 @@ export const register = catchAsync(async (req: Request, res: Response, next: Nex
 
     res.cookie('token', token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        secure: true, // Required for sameSite: 'none'
+        sameSite: 'none',
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
@@ -34,8 +34,8 @@ export const login = catchAsync(async (req: Request, res: Response, next: NextFu
 
     res.cookie('token', token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        secure: true, // Required for sameSite: 'none'
+        sameSite: 'none',
         maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 

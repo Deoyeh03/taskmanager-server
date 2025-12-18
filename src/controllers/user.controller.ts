@@ -4,6 +4,8 @@ import { catchAsync } from '../utils/catchAsync';
 
 export const searchUsers = catchAsync(async (req: Request, res: Response) => {
     const { query } = req.query;
+    // @ts-ignore
+    console.log(`[Search] Query: "${query}" for user: ${req.user ? (req.user as any).username : 'No user'}`);
 
     if (!query || typeof query !== 'string' || query.length < 2) {
         return res.status(200).json({
@@ -18,6 +20,8 @@ export const searchUsers = catchAsync(async (req: Request, res: Response) => {
             { email: { $regex: query, $options: 'i' } }
         ]
     }).select('_id username email').limit(10);
+
+    console.log(`[Search] Found ${users.length} users`);
 
     res.status(200).json({
         status: 'success',
