@@ -4,8 +4,9 @@
   "description": "Backend for Collaborative Task Management SaaS",
   "main": "src/server.ts",
   "scripts": {
-    "start": "ts-node src/server.ts",
+    "start": "node dist/server.js",
     "dev": "nodemon src/server.ts",
+    "serve": "ts-node src/server.ts",
     "seed": "ts-node src/seeds/seed.ts",
     "build": "tsc",
     "test": "jest"

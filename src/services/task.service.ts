@@ -2,6 +2,7 @@ import { TaskRepository } from '../repositories/task.repository';
 import { CreateTaskInput, UpdateTaskInput } from '../dtos/task.dto';
 import { AppError } from '../utils/AppError';
 import { getIO } from '../sockets/socket.instance';
+import { NotificationService } from './notification.service';
 
 export class TaskService {
     private taskRepo: TaskRepository;
@@ -28,12 +29,21 @@ export class TaskService {
 
         // Populate for the frontend
         const populatedTask = await this.taskRepo.findById(task.id);
+        if (!populatedTask) {
+            throw new AppError('Task could not be found after creation', 500);
+        }
 
         // Real-time notification
         getIO().emit('task:created', populatedTask);
 
         if (input.assignedToId) {
             getIO().to(input.assignedToId).emit('task:assigned', populatedTask);
+            await NotificationService.create(
+                input.assignedToId,
+                `New task assigned: "${populatedTask.title}"`,
+                'task_assigned',
+                populatedTask.id
+            );
         }
 
         return populatedTask;
@@ -73,10 +83,10 @@ export class TaskService {
             createdAt: new Date()
         };
 
-        if (input.status && input.status !== task.status) {
+        if (input.status && input.status !== task!.status) {
             activity.type = 'status_change';
             activity.details = `Moved task to ${input.status}`;
-        } else if (input.assignedToId && input.assignedToId !== task.assignedToId?.toString()) {
+        } else if (input.assignedToId && input.assignedToId !== task!.assignedToId?.toString()) {
             activity.type = 'assigned';
             activity.details = `Task assigned to ${input.assignedToId}`;
         }
@@ -88,8 +98,29 @@ export class TaskService {
 
         getIO().emit('task:updated', updatedTask);
 
-        if (input.assignedToId && input.assignedToId !== task.assignedToId?.toString()) {
+        if (input.assignedToId && input.assignedToId !== task!.assignedToId?.toString()) {
             getIO().to(input.assignedToId).emit('task:assigned', updatedTask);
+            await NotificationService.create(
+                input.assignedToId,
+                `Task assigned to you: "${updatedTask!.title}"`,
+                'task_assigned',
+                updatedTask!.id
+            );
+        } else if (input.status && input.status !== task!.status) {
+            // Notify creator and assigned user of status change
+            const usersToNotify = new Set([task!.creatorId?.toString(), task!.assignedToId?.toString()]);
+            usersToNotify.delete(userId); // Don't notify the person who made the change
+
+            for (const targetId of usersToNotify) {
+                if (targetId) {
+                    await NotificationService.create(
+                        targetId,
+                        `Task "${updatedTask!.title}" moved to ${input!.status}`,
+                        'status_change',
+                        updatedTask!.id
+                    );
+                }
+            }
         }
 
         return updatedTask;

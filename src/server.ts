@@ -12,6 +12,7 @@ import { globalErrorHandler } from './middlewares/error.middleware';
 import authRoutes from './routes/auth.routes';
 import taskRoutes from './routes/task.routes';
 import userRoutes from './routes/user.routes';
+import notificationRoutes from './routes/notification.routes';
 
 dotenv.config();
 
@@ -41,6 +42,7 @@ app.use(cookieParser());
 app.use('/api/auth', authRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // Basic health check
 app.get('/health', (req, res) => {
@@ -52,6 +54,12 @@ app.use(globalErrorHandler);
 
 const PORT = Number(process.env.PORT) || 4000;
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/collaborative-task-saas';
+
+if (!process.env.MONGO_URI) {
+    console.warn('WARNING: MONGO_URI environment variable is not set. Falling back to local MongoDB.');
+} else {
+    console.log('Using MONGO_URI from environment variables.');
+}
 
 mongoose.connect(MONGO_URI)
     .then(() => {
